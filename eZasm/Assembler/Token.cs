@@ -33,6 +33,8 @@ namespace eZasm.Assembler
             Operator,
             IndentWhitespace,
             NewLineWhitespace,
+            QuotedString,
+            Comment,
         }
 
         public readonly TokenClass Type;

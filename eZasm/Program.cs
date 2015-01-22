@@ -12,44 +12,46 @@ namespace eZasm
     {
         static void Main(string[] args)
         {
-            string operators = "!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\[\\]\\\\{\\}\\<\\>,\\|\\-\\+=`~/:;\"'";
-            string whitespace = " \\r\\n\\t\\f";
-            Regex nextToken = new Regex("([^" + operators + whitespace + "]+|[" + operators + "]|[" + whitespace + "]+)");
-            Regex isOperatorToken = new Regex("[" + operators + "]");
-            Regex isWhitespaceToken = new Regex("[" + whitespace + "]");
-            Regex isIndent = new Regex("[ \t]+");
+            InputFile blah = new InputFile();
+            blah.Text = ".org 9D95h\r\n\tld hl, hello\r\n\tb_call(_PutS);Show something\r\n\tb_call(_NewLine)\r\n\tret\r\n; String to show\r\nhello: .db \"Hello; \\\"world\\\\!\\\"\", 0";
+            Tokenizer tokenizer = new Tokenizer(blah);
 
-            string[] text = new string[]
+            Console.WriteLine("***BEGIN INPUT***");
+
+            Console.WriteLine(blah.Text);
+            Console.WriteLine("***END INPUT***");
+            Console.WriteLine("Tokens:");
+            while (tokenizer.HasMoreTokens)
             {
-                ".org 9D95h",
-                "\tld hl, hello",
-                "\tb_call(_PutS)",
-                "\tb_call(_NewLine)",
-                "; Thingy",
-                "hello: .db \"Hello, world!\", 0"
-            };
-
-            bool moreTokens = true;
-
-            while (moreTokens)
-            {
-                return;
+                Token x = tokenizer.GetNextToken();
+                switch (x.Type)
+                {
+                    case Token.TokenClass.IndentWhitespace:
+                        Console.Write("Indent: ");
+                        break;
+                    case Token.TokenClass.NewLineWhitespace:
+                        Console.WriteLine("Newline.");
+                        break;
+                    case Token.TokenClass.Operator:
+                        Console.Write("Operator: ");
+                        break;
+                    case Token.TokenClass.Symbol:
+                        Console.Write("Symbol: ");
+                        break;
+                    case Token.TokenClass.Comment:
+                        Console.Write("Comment: ");
+                        break;
+                    case Token.TokenClass.QuotedString:
+                        Console.Write("Quoted string: ");
+                        break;
+                }
+                if (x.Type != Token.TokenClass.NewLineWhitespace)
+                {
+                    Console.Write(x.Text);
+                    Console.WriteLine("");
+                }
             }
-
-            string input = "\tld a, (hl) \\ ld (1234h), a\r\n djnz $";
-            foreach (Match m in nextToken.Matches(input))
-            {
-                if (isOperatorToken.IsMatch(m.Value))
-                    Console.Write("Operator: ");
-                else if (isIndent.IsMatch(m.Value))
-                    Console.Write("Indent: ");
-                else if (isWhitespaceToken.IsMatch(m.Value))
-                    Console.Write("White space: ");
-                else
-                    Console.Write("Token: ");
-                //Console.Write(">");
-                Console.WriteLine(m.Value);
-            }
+            Console.WriteLine("TODO: MAKE UNIT TESTS TOMORROW");
             Console.ReadKey();
         }
     }

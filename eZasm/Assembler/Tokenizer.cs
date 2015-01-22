@@ -15,16 +15,20 @@ namespace eZasm.Assembler
         /// <summary>
         /// String containing a regex that describes what an operator looks like
         /// </summary>
-        internal readonly static string Operators = "!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\[\\]\\\\{\\}\\<\\>,\\|\\-\\+=`~/:;\"'";
+        internal readonly static string Operators = "!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\[\\]\\\\{\\}\\<\\>,\\.\\|\\-\\+=`~/:\"'";
         /// <summary>
         /// String containing a regex that describes what whitespace looks like
         /// </summary>
         internal readonly static string WhitespaceChars = " \\t";
-        internal readonly static string NewLineChars = "(\\n|\\r|\\n\\r)";
+        internal readonly static string NewLineChars = "(\\r\\n|\\n|\\r)";
+        internal readonly static string QuotedStringChars = "\"([^\\\\\"\r\n]|(\\\\[\"ntr\\\\]))*\"";
+        internal readonly static string CommentChars = ";[^\\r\\n]*";
+        // ("[^"
         /// <summary>
         /// Regex that describes what a token looks like
         /// </summary>
-        internal readonly static Regex TokenRegex = new Regex("([^" + Operators + WhitespaceChars + "]+|[" + Operators + "]|[" + WhitespaceChars + "]+|" + NewLineChars + "+)");
+        //internal readonly static Regex TokenRegex = new Regex("(|" + QuotedStringChars + "|[^" + Operators + WhitespaceChars + "\\n\\r]+|[" + Operators + "]|[" + WhitespaceChars + "]+|" + NewLineChars + ")");
+        internal readonly static Regex TokenRegex = new Regex("(" + QuotedStringChars + "|" + CommentChars + "|[^" + Operators + WhitespaceChars + "\\n\\r]+|[" + Operators + "]|[" + WhitespaceChars + "]+|" + NewLineChars + ")");
         /// <summary>
         /// Regex that describes what an operator looks like
         /// </summary>
@@ -38,7 +42,14 @@ namespace eZasm.Assembler
         /// Regex that describes what an indent looks like
         /// </summary>
         internal readonly static Regex IsNewLineToken = new Regex(NewLineChars);
-        
+        /// <summary>
+        /// This is ugly.
+        /// </summary>
+        internal readonly static Regex IsQuotedStringToken = new Regex(QuotedStringChars);
+        /// <summary>
+        /// At least checking for comments is easy.
+        /// </summary>
+        internal readonly static Regex IsCommentToken = new Regex(CommentChars);
 
         /// <summary>
         /// Text to parse
@@ -75,8 +86,7 @@ namespace eZasm.Assembler
         {
             if (TokensLeft == 0)
                 return null;
-            if (!FirstToken)
-                MatchesEnumerator.MoveNext();
+            MatchesEnumerator.MoveNext();
             FirstToken = false;
             CurrentMatch = ((Match)MatchesEnumerator.Current);
             CurrentString = CurrentMatch.Value;
@@ -84,6 +94,10 @@ namespace eZasm.Assembler
             Token token = null;
             if (IsOperatorToken.IsMatch(CurrentString))
                 token = new Token(Token.TokenClass.Operator, CurrentString, InputFile, LineNumber);
+            else if (IsCommentToken.IsMatch(CurrentString))
+                token = new Token(Token.TokenClass.Comment, CurrentString, InputFile, LineNumber);
+            else if (IsQuotedStringToken.IsMatch(CurrentString))
+                token = new Token(Token.TokenClass.QuotedString, CurrentString, InputFile, LineNumber);
             else if (IsNewLineToken.IsMatch(CurrentString))
                 token = new Token(Token.TokenClass.NewLineWhitespace, CurrentString, InputFile, LineNumber++);
             else if (IsWhitespaceToken.IsMatch(CurrentString))
