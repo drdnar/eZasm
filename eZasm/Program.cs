@@ -12,40 +12,40 @@ namespace eZasm
     {
         static void Main(string[] args)
         {
-            InputFile blah = new InputFile();
+            InputString blah = new InputString();
             blah.Text = ".org 9D95h\r\n\tld hl, hello\r\n\tb_call(_PutS);Show something\r\n\tb_call(_NewLine)\r\n\tret\r\n; String to show\r\nhello: .db \"Hello; \\\"world\\\\!\\\"\", 0";
-            Tokenizer tokenizer = new Tokenizer(blah);
+            Lexer tokenizer = new Lexer(blah);
 
             Console.WriteLine("***BEGIN INPUT***");
 
             Console.WriteLine(blah.Text);
             Console.WriteLine("***END INPUT***");
             Console.WriteLine("Tokens:");
-            while (tokenizer.HasMoreTokens)
+            while (tokenizer.HasMoreLexemes)
             {
-                Token x = tokenizer.GetNextToken();
+                Lexeme x = tokenizer.GetNextLexeme();
                 switch (x.Type)
                 {
-                    case Token.TokenClass.IndentWhitespace:
+                    case Lexeme.LexemeClass.IndentWhitespace:
                         Console.Write("Indent: ");
                         break;
-                    case Token.TokenClass.NewLineWhitespace:
+                    case Lexeme.LexemeClass.NewLineWhitespace:
                         Console.WriteLine("Newline.");
                         break;
-                    case Token.TokenClass.Operator:
+                    case Lexeme.LexemeClass.Operator:
                         Console.Write("Operator: ");
                         break;
-                    case Token.TokenClass.Symbol:
+                    case Lexeme.LexemeClass.Symbol:
                         Console.Write("Symbol: ");
                         break;
-                    case Token.TokenClass.Comment:
+                    case Lexeme.LexemeClass.Comment:
                         Console.Write("Comment: ");
                         break;
-                    case Token.TokenClass.QuotedString:
+                    case Lexeme.LexemeClass.QuotedString:
                         Console.Write("Quoted string: ");
                         break;
                 }
-                if (x.Type != Token.TokenClass.NewLineWhitespace)
+                if (x.Type != Lexeme.LexemeClass.NewLineWhitespace)
                 {
                     Console.Write(x.Text);
                     Console.WriteLine("");

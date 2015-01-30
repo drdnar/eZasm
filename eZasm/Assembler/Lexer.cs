@@ -10,29 +10,30 @@ namespace eZasm.Assembler
     /// <summary>
     /// Digests an input string into Tokens
     /// </summary>
-    public class Tokenizer
+    class Lexer
     {
         /// <summary>
         /// String containing a regex that describes what an operator looks like
         /// </summary>
-        internal readonly static string Operators = "!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\[\\]\\\\{\\}\\<\\>,\\.\\|\\-\\+=`~/:\"'";
+        internal readonly static string OperatorChars = "!\\@\\$\\%\\^\\&\\*\\(\\)\\[\\]\\\\{\\}\\<\\>,\\|\\-\\+=`~/:\"'";
+        internal readonly static string Operators = "\\<\\<|\\>\\>|\\|\\||\\&\\&|\\=\\=|\\<\\=|\\>\\=|[" + OperatorChars + "]";
         /// <summary>
         /// String containing a regex that describes what whitespace looks like
         /// </summary>
         internal readonly static string WhitespaceChars = " \\t";
         internal readonly static string NewLineChars = "(\\r\\n|\\n|\\r)";
-        internal readonly static string QuotedStringChars = "\"([^\\\\\"\r\n]|(\\\\[\"ntr\\\\]))*\"";
+        internal readonly static string QuotedStringChars = "\"([^\\\\\"\r\n]|(\\\\[^\\r\\n]))*\"";
         internal readonly static string CommentChars = ";[^\\r\\n]*";
         // ("[^"
         /// <summary>
         /// Regex that describes what a token looks like
         /// </summary>
         //internal readonly static Regex TokenRegex = new Regex("(|" + QuotedStringChars + "|[^" + Operators + WhitespaceChars + "\\n\\r]+|[" + Operators + "]|[" + WhitespaceChars + "]+|" + NewLineChars + ")");
-        internal readonly static Regex TokenRegex = new Regex("(" + QuotedStringChars + "|" + CommentChars + "|[^" + Operators + WhitespaceChars + "\\n\\r]+|[" + Operators + "]|[" + WhitespaceChars + "]+|" + NewLineChars + ")");
+        internal readonly static Regex LexemeRegex = new Regex("(" + QuotedStringChars + "|" + CommentChars + "|[^" + OperatorChars + WhitespaceChars + "\\n\\r]+|" + Operators + "|[" + WhitespaceChars + "]+|" + NewLineChars + ")");
         /// <summary>
         /// Regex that describes what an operator looks like
         /// </summary>
-        internal readonly static Regex IsOperatorToken = new Regex("[" + Operators + "]");
+        internal readonly static Regex IsOperatorToken = new Regex("(" + Operators + ")");
         /// <summary>
         /// Regex that describes what any whitespace looks like
         /// </summary>
@@ -59,15 +60,29 @@ namespace eZasm.Assembler
         System.Collections.IEnumerator MatchesEnumerator;
         Match CurrentMatch;
         string CurrentString;
-        int TokensLeft;
-        InputFile InputFile;
-        int LineNumber;
-
-        bool FirstToken;
-
-        public Tokenizer(InputFile file)
+        
+        InputSource InputSource;
+        /// <summary>
+        /// Line number of the next token
+        /// </summary>
+        int lineNumber;
+        /// <summary>
+        /// Returns the line number of the next token.
+        /// </summary>
+        public int CurrentLineNumber
         {
-            InputFile = file;
+            get
+            {
+                return lineNumber;
+            }
+        }
+
+        bool MoreLexemes = true;
+        bool Init = false;
+
+        public Lexer(InputSource file)
+        {
+            InputSource = file;
             Text = file.Text;
             StartParse();
         }
@@ -75,35 +90,37 @@ namespace eZasm.Assembler
 
         void StartParse()
         {
-            Matches = TokenRegex.Matches(Text);
+            Matches = LexemeRegex.Matches(Text);
             MatchesEnumerator = Matches.GetEnumerator();
-            FirstToken = true;
-            TokensLeft = Matches.Count;
-            LineNumber = 1;
+            lineNumber = 1;
         }
 
-        public Token GetNextToken()
+        public Lexeme GetNextLexeme()
         {
-            if (TokensLeft == 0)
-                return null;
-            MatchesEnumerator.MoveNext();
-            FirstToken = false;
+            if (!Init)
+            {
+                MoreLexemes = MatchesEnumerator.MoveNext();
+                Init = true;
+            }
+            if (!MoreLexemes)
+                if (!(MoreLexemes = MatchesEnumerator.MoveNext()))
+                    return null;
             CurrentMatch = ((Match)MatchesEnumerator.Current);
             CurrentString = CurrentMatch.Value;
-            TokensLeft--;
-            Token token = null;
+            Lexeme token = null;
             if (IsOperatorToken.IsMatch(CurrentString))
-                token = new Token(Token.TokenClass.Operator, CurrentString, InputFile, LineNumber);
+                token = new Lexeme(Lexeme.LexemeClass.Operator, CurrentString, InputSource, lineNumber);
             else if (IsCommentToken.IsMatch(CurrentString))
-                token = new Token(Token.TokenClass.Comment, CurrentString, InputFile, LineNumber);
+                token = new Lexeme(Lexeme.LexemeClass.Comment, CurrentString, InputSource, lineNumber);
             else if (IsQuotedStringToken.IsMatch(CurrentString))
-                token = new Token(Token.TokenClass.QuotedString, CurrentString, InputFile, LineNumber);
+                token = new Lexeme(Lexeme.LexemeClass.QuotedString, CurrentString, InputSource, lineNumber);
             else if (IsNewLineToken.IsMatch(CurrentString))
-                token = new Token(Token.TokenClass.NewLineWhitespace, CurrentString, InputFile, LineNumber++);
+                token = new Lexeme(Lexeme.LexemeClass.NewLineWhitespace, CurrentString, InputSource, lineNumber++);
             else if (IsWhitespaceToken.IsMatch(CurrentString))
-                token = new Token(Token.TokenClass.IndentWhitespace, CurrentString, InputFile, LineNumber);
+                token = new Lexeme(Lexeme.LexemeClass.IndentWhitespace, CurrentString, InputSource, lineNumber);
             else
-                token = new Token(Token.TokenClass.Symbol, CurrentString, InputFile, LineNumber);
+                token = new Lexeme(Lexeme.LexemeClass.Symbol, CurrentString, InputSource, lineNumber);
+            MoreLexemes = MatchesEnumerator.MoveNext();
             return token;
         }
 
@@ -112,11 +129,11 @@ namespace eZasm.Assembler
             return CurrentString;
         }
 
-        public bool HasMoreTokens
+        public bool HasMoreLexemes
         {
             get
             {
-                return TokensLeft > 0;
+                return MoreLexemes;
             }
         }
     }

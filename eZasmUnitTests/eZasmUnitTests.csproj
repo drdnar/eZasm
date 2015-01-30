@@ -50,14 +50,20 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="LexerUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestInputs\tokenizerTestFile.asm" />
+    <Content Include="TestInputs\lexerTestFile.asm" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assembler\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eZasm\eZasm.csproj">
+      <Project>{a4f83083-d464-4a8e-a59c-81a7923eef6b}</Project>
+      <Name>eZasm</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

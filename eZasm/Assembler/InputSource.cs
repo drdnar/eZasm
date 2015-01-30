@@ -9,7 +9,7 @@ namespace eZasm.Assembler
     /// <summary>
     /// Represents an input file
     /// </summary>
-    public class InputFile
+    public abstract class InputSource
     {
         /// <summary>
         /// File name

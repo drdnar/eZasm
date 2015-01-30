@@ -42,16 +42,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembler\Assembler.cs" />
-    <Compile Include="Assembler\InputFile.cs" />
+    <Compile Include="Assembler\InputSource.cs" />
+    <Compile Include="Assembler\InputString.cs" />
     <Compile Include="Assembler\Statement.cs" />
-    <Compile Include="Assembler\Tokenizer.cs" />
+    <Compile Include="Assembler\Lexer.cs" />
+    <Compile Include="Assembler\TokenStream.cs" />
+    <Compile Include="Assembler\Tokens\DirectiveToken.cs" />
+    <Compile Include="Assembler\Tokens\IdentifierToken.cs" />
+    <Compile Include="Assembler\Tokens\NumberToken.cs" />
+    <Compile Include="Assembler\Tokens\OperatorToken.cs" />
+    <Compile Include="Assembler\Tokens\PreprocessorToken.cs" />
+    <Compile Include="Assembler\Tokens\Token.cs" />
     <Compile Include="ObjectFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Assembler\Section.cs" />
     <Compile Include="Assembler\Segment.cs" />
     <Compile Include="Assembler\Symbol.cs" />
-    <Compile Include="Assembler\Token.cs" />
+    <Compile Include="Assembler\Lexeme.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

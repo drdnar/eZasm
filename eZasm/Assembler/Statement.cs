@@ -11,6 +11,6 @@ namespace eZasm.Assembler
     /// </summary>
     public class Statement
     {
-        public List<Token> Tokens = new List<Token>();
+        public List<Lexeme> Tokens = new List<Lexeme>();
     }
 }
