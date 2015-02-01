@@ -8,6 +8,9 @@ namespace eZasm.Assembler
 {
     class InputString : InputSource
     {
-
+        public string ToString()
+        {
+            return "Input string " + Name;
+        }
     }
 }

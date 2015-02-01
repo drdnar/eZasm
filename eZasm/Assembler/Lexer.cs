@@ -16,7 +16,7 @@ namespace eZasm.Assembler
         /// String containing a regex that describes what an operator looks like
         /// </summary>
         internal readonly static string OperatorChars = "!\\@\\$\\%\\^\\&\\*\\(\\)\\[\\]\\\\{\\}\\<\\>,\\|\\-\\+=`~/:\"'";
-        internal readonly static string Operators = "\\<\\<|\\>\\>|\\|\\||\\&\\&|\\=\\=|\\<\\=|\\>\\=|[" + OperatorChars + "]";
+        internal readonly static string Operators = "\\<\\<|\\>\\>|\\|\\||\\&\\&|\\=\\=|\\<\\=|\\>\\=|\\!\\=|[" + OperatorChars + "]";
         /// <summary>
         /// String containing a regex that describes what whitespace looks like
         /// </summary>

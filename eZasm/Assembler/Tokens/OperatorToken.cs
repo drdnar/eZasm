@@ -74,6 +74,10 @@ namespace eZasm.Assembler.Tokens
         /// </summary>
         EqualTo,
         /// <summary>
+        /// !=
+        /// </summary>
+        NotEqualTo,
+        /// <summary>
         /// <
         /// </summary>
         LessThan,
@@ -107,6 +111,7 @@ namespace eZasm.Assembler.Tokens
     class OperatorToken : Token
     {
         public OperatorType Type;
+
         public OperatorToken(string data, int lineNumber, InputSource source)
         {
             Text = data;
@@ -160,6 +165,9 @@ namespace eZasm.Assembler.Tokens
                 case "~":
                     Type = OperatorType.BitwiseComplement;
                     break;
+                case "!=":
+                    Type = OperatorType.NotEqualTo;
+                    break;
                 case "==":
                     Type = OperatorType.EqualTo;
                     break;
@@ -185,7 +193,7 @@ namespace eZasm.Assembler.Tokens
                     Type = OperatorType.LineContinuation;
                     break;
                 default:
-                    throw new Exception();
+                    throw new eZasm.Assembler.AssemblerError.UnknownOperatorException(source, lineNumber, null, data);
             }
         }
     }

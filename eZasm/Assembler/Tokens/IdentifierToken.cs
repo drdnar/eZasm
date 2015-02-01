@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace eZasm.Assembler.Tokens
 {
-    class IdentifierToken
+    public class IdentifierToken : Token
     {
     }
 }

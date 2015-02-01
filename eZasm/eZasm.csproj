@@ -42,6 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembler\Assembler.cs" />
+    <Compile Include="Assembler\AssemblerError\AssemblerException.cs" />
+    <Compile Include="Assembler\AssemblerError\GenericException.cs" />
+    <Compile Include="Assembler\AssemblerError\UnknownOperatorException.cs" />
     <Compile Include="Assembler\InputSource.cs" />
     <Compile Include="Assembler\InputString.cs" />
     <Compile Include="Assembler\Statement.cs" />

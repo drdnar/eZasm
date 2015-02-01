@@ -12,7 +12,7 @@ namespace eZasm.Assembler
     public abstract class InputSource
     {
         /// <summary>
-        /// File name
+        /// File name or other name
         /// </summary>
         public string Name;
 
